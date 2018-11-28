@@ -213,6 +213,6 @@ int calculatePoints(char *placing, int racetotal)
     return (racetotal - atoi(placing))/13 + 5 + 3; /* 2nd */
   else if (strcmp(placing, "3") == 0)
     return (racetotal - atoi(placing))/13 + 2 + 3; /* 3rd */
-  else
+  else /* Gets a placing that isn't OTL or DNF */
     return (racetotal - atoi(placing))/13 + 3; /* Gets 3 extra points for being within timelimit */
 }

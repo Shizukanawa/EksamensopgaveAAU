@@ -45,9 +45,9 @@ int checkProgramParameter(const char *_parameter); /* Checks the program paramet
 void printUserInteraction(void); /* Prints user interaction sequence */
 void printRider(Rider _rider); /* Prints the rider into console */
 void givePoints(Rider *_rider); /* Gives the rider points based on his placings */
-void countRidersInRace(Rider *_rider, int *total);
-int calculatePoints(char *placing, int racetotal);
-int findRace(Rider _rider);
+void countRidersInRace(Rider *_rider, int *total); /* Counts the riders, including DNF, in a given race */
+int calculatePoints(char *placing, int racetotal); /* Calculates the points */
+int findRace(Rider _rider); /* Finds a specific race */
 
 int main(int argc, char *argv[])
 {
@@ -151,23 +151,21 @@ void givePoints(Rider *_rider)
   RiderPoints points[AMOUNT_OF_RUNS] = {0};
   countRidersInRace(_rider, total);
 
-
-  printf("Total[0]: %d, Total[1]: %d, Total[2]: %d, Total[3]: %d\n", total[0], total[1], total[2], total[3]);
-  for(i = 0; i < AMOUNT_OF_RUNS; ++i)
+  for(i = 0; i < AMOUNT_OF_RUNS; ++i) /* Go through all the riders */
   {
     race = findRace(_rider[i]);
-    for(j = 0; j <= i; ++j)
+    for(j = 0; j <= i; ++j) /* Nested loop to check for every entry in the array*/
     {
-      if (points[j].Name[0] == '\0')
+      if (points[j].Name[0] == '\0') /* If points[j] is null, then add a new entry. Skip if it isn't */
       {
-        strcpy(points[j].Name, _rider[i].Name);
+        strcpy(points[j].Name, _rider[i].Name); /* Copies the name to the new struct array */
         points[j].Points += calculatePoints(_rider[i].Placing, total[race]);
         break;
       }
-      else if (strcmp(points[j].Name, _rider[i].Name) == 0)
+      else if (strcmp(points[j].Name, _rider[i].Name) == 0) /* Checks if name is there. If not then loop, if there is then add  */
       {
-        points[j].Points += calculatePoints(_rider[i].Placing, total[race]);
-        break;
+        points[j].Points += calculatePoints(_rider[i].Placing, total[race]); /* Assigns the current amount + calculated points */
+        break; /* Break out of the loop */
       }
     }
   }
@@ -193,8 +191,8 @@ void countRidersInRace(Rider *_rider, int *total)
 
 int findRace(Rider _rider)
 {
-  if(strcmp(_rider.RaceName, "ParisRoubaix") == 0)
-    return ParisRoubaix;
+  if(strcmp(_rider.RaceName, "ParisRoubaix") == 0) /* If the racename is equal to ParisRoubaix */
+    return ParisRoubaix; /* Return enum ParisRoubaix(0) */
   else if (strcmp(_rider.RaceName, "AmstelGoldRace") == 0)
     return AmstelGoldRace;
   else if (strcmp(_rider.RaceName, "LaFlecheWallonne") == 0)
@@ -205,16 +203,16 @@ int findRace(Rider _rider)
 
 int calculatePoints(char *placing, int racetotal)
 {
-  if (strcmp(placing, "OTL") == 0)
+  if (strcmp(placing, "OTL") == 0) /* Riders gets 1 point for being over time limit */
     return 1;
-  else if (strcmp(placing, "DNF") == 0)
+  else if (strcmp(placing, "DNF") == 0) /* Riders gets 0 points for not finishing */
     return 0;
-  else if (strcmp(placing, "1") == 0)
+  else if (strcmp(placing, "1") == 0) /* If the rider gets 1st */
     return (racetotal - atoi(placing))/13 + 10 + 3;
   else if (strcmp(placing, "2") == 0)
-    return (racetotal - atoi(placing))/13 + 5 + 3;
+    return (racetotal - atoi(placing))/13 + 5 + 3; /* 2nd */
   else if (strcmp(placing, "3") == 0)
-    return (racetotal - atoi(placing))/13 + 2 + 3;
+    return (racetotal - atoi(placing))/13 + 2 + 3; /* 3rd */
   else
-    return (racetotal - atoi(placing))/13;
+    return (racetotal - atoi(placing))/13 + 3; /* Gets 3 extra points for being within timelimit */
 }

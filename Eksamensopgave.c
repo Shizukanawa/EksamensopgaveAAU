@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
+
 #define AMOUNT_OF_RUNS 790
 #define MAX_LENGTH_NAMES 40
 #define MAX_LENGTH_ABBREV 3+1
@@ -39,20 +41,25 @@ typedef struct RiderPoints
   int Points;
 } RiderPoints;
 
-
 int getRiders(Rider *_rider); /* Puts the riders in the struct array. Returns 1 if the file is there and 0 if the file isn't there or null */
 int checkProgramParameter(const char *_parameter); /* Checks the program parameters if it is --print */
 void printUserInteraction(void); /* Prints user interaction sequence */
 void printRider(Rider _rider); /* Prints the rider into console */
 void givePoints(Rider *_rider, RiderPoints *_points); /* Gives the rider points based on his placings */
-void countRidersInRace(Rider *_rider, int *total); /* Counts the riders, including DNF, in a given race */
-int calculatePoints(char *placing, int racetotal); /* Calculates the points */
+void countRidersInRace(Rider *_rider, int *_total); /* Counts the riders, including DNF, in a given race */
+int calculatePoints(char *_placing, int _racetotal); /* Calculates the points */
 int findRace(Rider _rider); /* Finds a specific race */
+void sortPoints(RiderPoints *_points);
+int comparePoints(const void *_first, const void *_second);
 
 int main(int argc, char *argv[])
 {
+  int i, userinput;
+
   Rider rider[AMOUNT_OF_RUNS];
   RiderPoints points[AMOUNT_OF_RUNS] = {0};
+  char rest[MAX_LENGTH_NAMES];
+
   if (argv[1] != NULL) /* If the user has putten in a single argument */
   {
     if (checkProgramParameter(argv[1])) /* If the user only wants to print the results of all functions that is relevant */
@@ -68,9 +75,8 @@ int main(int argc, char *argv[])
   }
   else /* User interaction. Goes to this if argv[1] is null */
   {
-    /*int i, userinput*/;
     printUserInteraction();
-    /* scanf(" %d", &userinput); */
+    scanf(" %d", &userinput);
     
     if (getRiders(rider) == 0)
     {
@@ -79,12 +85,36 @@ int main(int argc, char *argv[])
     }
     else
     {
-      /*for(i = 0; i < AMOUNT_OF_RUNS; ++i)
+      if (userinput == 1)
       {
-        printRider(rider[i]);
-      }*/
-      givePoints(rider, points);
-      printf("Name: %s Points: %d\n", points[0].Name, points[0].Points);
+        printf("User input: %d", userinput);
+      }
+      else if (userinput == 2)
+      {
+        printf("User input: %d", userinput);
+      }
+      else if (userinput == 3)
+      {
+        givePoints(rider, points);
+        sortPoints(points);
+
+        for(i = 0; i < 10; ++i)
+        {
+          printf("Name: %s Points: %d\n", points[i].Name, points[i].Points);
+        }
+      }
+      else if (userinput == 4)
+      {
+        printf("User input: %d", userinput);
+      }
+      else if (userinput == 5)
+      {
+        printf("User input: %d", userinput);
+      }
+      else if (userinput == -1)
+      {
+        printf("Exiting program...\n");
+      }
       return EXIT_SUCCESS;
     }
   }
@@ -138,6 +168,7 @@ void printUserInteraction(void)
   printf("(3) Top 10 riders\n");
   printf("(4) Best rider in Paris Roubaix & Amstel Gold Race\n");
   printf("(5) Average age of riders with top 10 in a race\n");
+  printf("(-1) Exit program\n");
 }
 
 void printRider(Rider _rider)
@@ -171,20 +202,20 @@ void givePoints(Rider *_rider, RiderPoints *_points)
   }
 }
 
-void countRidersInRace(Rider *_rider, int *total)
+void countRidersInRace(Rider *_rider, int *_total)
 {
   int i;
-  total[ParisRoubaix] = 0, total[AmstelGoldRace] = 0, total[LaFlecheWallonne] = 0, total[LiegeBastogneLiege] = 0; /* Resets the array values to 0 */
+  _total[ParisRoubaix] = 0, _total[AmstelGoldRace] = 0, _total[LaFlecheWallonne] = 0, _total[LiegeBastogneLiege] = 0; /* Resets the array values to 0 */
   for(i = 0; i < AMOUNT_OF_RUNS; ++i) /* Runs until the end of AMOUNT_OF_RUNS */
   {
     if (strcmp(_rider[i].RaceName, "ParisRoubaix") == 0) /* If race name is Paris */
-      total[0] += 1;
+      _total[0] += 1;
     else if ((strcmp(_rider[i].RaceName, "AmstelGoldRace") == 0)) /* If racename is Amstel... */
-      total[1] += 1;
+      _total[1] += 1;
     else if ((strcmp(_rider[i].RaceName, "LaFlecheWallonne") == 0))
-      total[2] += 1;
+      _total[2] += 1;
     else /* If the others didn't catch then go to this */
-      total[3] += 1;
+      _total[3] += 1;
   }
 }
 
@@ -200,18 +231,63 @@ int findRace(Rider _rider)
     return LiegeBastogneLiege;
 }
 
-int calculatePoints(char *placing, int racetotal)
+int calculatePoints(char *_placing, int _racetotal)
 {
-  if (strcmp(placing, "OTL") == 0) /* Riders gets 1 point for being over time limit */
+  if (strcmp(_placing, "OTL") == 0) /* Riders gets 1 point for being over time limit */
     return 1;
-  else if (strcmp(placing, "DNF") == 0) /* Riders gets 0 points for not finishing */
+  else if (strcmp(_placing, "DNF") == 0) /* Riders gets 0 points for not finishing */
     return 0;
-  else if (strcmp(placing, "1") == 0) /* If the rider gets 1st */
-    return (racetotal - atoi(placing))/13 + 10 + 3;
-  else if (strcmp(placing, "2") == 0)
-    return (racetotal - atoi(placing))/13 + 5 + 3; /* 2nd */
-  else if (strcmp(placing, "3") == 0)
-    return (racetotal - atoi(placing))/13 + 2 + 3; /* 3rd */
+  else if (strcmp(_placing, "1") == 0) /* If the rider gets 1st */
+    return (_racetotal - atoi(_placing))/13 + 10 + 3;
+  else if (strcmp(_placing, "2") == 0)
+    return (_racetotal - atoi(_placing))/13 + 5 + 3; /* 2nd */
+  else if (strcmp(_placing, "3") == 0)
+    return (_racetotal - atoi(_placing))/13 + 2 + 3; /* 3rd */
   else /* Gets a placing that isn't OTL or DNF */
-    return (racetotal - atoi(placing))/13 + 3; /* Gets 3 extra points for being within timelimit */
+    return (_racetotal - atoi(_placing))/13 + 3; /* Gets 3 extra points for being within timelimit */
+}
+
+void sortPoints(RiderPoints *_points)
+{
+  qsort(_points, AMOUNT_OF_RUNS, sizeof(RiderPoints), comparePoints);
+}
+
+int comparePoints(const void *_first, const void *_second)
+{
+  const RiderPoints *pfirst = _first;
+  const RiderPoints *psecond = _second;
+  int i, j = 0, firstresult = strlen(pfirst->Name), secondresult = strlen(psecond->Name);
+  char firstsurname[MAX_LENGTH_NAMES] = {0}, secondsurname[MAX_LENGTH_NAMES] = {0};
+
+  if (pfirst->Points < psecond->Points)
+    return 1;
+  else if (pfirst->Points > psecond->Points)
+    return -1;
+  else
+  {
+    for(i = 0; i < firstresult; ++i) /* Gets the first persons last name */
+    {
+      if ((isupper(pfirst->Name[i]) && isupper(pfirst->Name[i+1])) || (isupper(pfirst->Name[i]) && pfirst->Name[i+1] == ' '))
+      { /* if name[i] is uppercase and the one after is uppercase or name[i] is uppercase and the one after is a space*/
+        firstsurname[j] = pfirst->Name[i];
+        ++j;
+      }
+    }
+    firstsurname[j] = pfirst->Name[i-1];
+    firstsurname[++j] = '\0';
+
+    j = 0;
+
+    for(i = 0; i < secondresult; ++i) /* Get second persons last name */
+    {
+      if ((isupper(psecond->Name[i]) && isupper(psecond->Name[i+1])) || (isupper(psecond->Name[i]) && psecond->Name[i+1] == ' '))
+      {
+        secondsurname[j] = psecond->Name[i];
+        ++j;
+      }
+    }
+    secondsurname[j] = psecond->Name[i-1];
+    secondsurname[++j] = '\0';
+    return strcmp(firstsurname, secondsurname);
+  }
 }

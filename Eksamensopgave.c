@@ -271,12 +271,16 @@ int comparePoints(const void *_first, const void *_second)
         firstsurname[j] = pfirst->Name[i];
         ++j;
       }
+      else if (pfirst->Name[i] == ' ' && isupper(pfirst->Name[i+1]))
+      { /* If the last name contains a space */
+        firstsurname[j] = ' ';
+        ++j;
+      }
     }
     firstsurname[j] = pfirst->Name[i-1];
     firstsurname[++j] = '\0';
 
     j = 0;
-
     for(i = 0; i < secondresult; ++i) /* Get second persons last name */
     {
       if ((isupper(psecond->Name[i]) && isupper(psecond->Name[i+1])) || (isupper(psecond->Name[i]) && psecond->Name[i+1] == ' '))
@@ -284,10 +288,15 @@ int comparePoints(const void *_first, const void *_second)
         secondsurname[j] = psecond->Name[i];
         ++j;
       }
+      else if (psecond->Name[i] == ' ' && isupper(psecond->Name[i+1]))
+      {
+        secondsurname[j] = ' ';
+        ++j;
+      }
     }
     secondsurname[j] = psecond->Name[i-1];
     secondsurname[++j] = '\0';
-
+    
     return strcmp(firstsurname, secondsurname); /* Compares and returns */
   }
 }

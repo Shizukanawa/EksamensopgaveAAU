@@ -13,7 +13,7 @@ O Find a way to handle "-" in timing. Perhaps use atoi if "-" is not found.
 X All italian riders over 30
 X Function that returns an array of Danish riders that has a placing or OTL but not listing them twice.
 
-X Give riders points !!!!!
+O Give riders points !!!!!
 
 X Print 10 riders that has most points and sort. If 2 or more has the same amount of points sort after surname
 X In Paris Roubaix and Amstel Gold Race, find the rider that has completed both and has the lowest amount of runtime.

@@ -44,7 +44,7 @@ int getRiders(Rider *_rider); /* Puts the riders in the struct array. Returns 1 
 int checkProgramParameter(const char *_parameter); /* Checks the program parameters if it is --print */
 void printUserInteraction(void); /* Prints user interaction sequence */
 void printRider(Rider _rider); /* Prints the rider into console */
-void givePoints(Rider *_rider); /* Gives the rider points based on his placings */
+void givePoints(Rider *_rider, RiderPoints *_points); /* Gives the rider points based on his placings */
 void countRidersInRace(Rider *_rider, int *total); /* Counts the riders, including DNF, in a given race */
 int calculatePoints(char *placing, int racetotal); /* Calculates the points */
 int findRace(Rider _rider); /* Finds a specific race */
@@ -52,6 +52,7 @@ int findRace(Rider _rider); /* Finds a specific race */
 int main(int argc, char *argv[])
 {
   Rider rider[AMOUNT_OF_RUNS];
+  RiderPoints points[AMOUNT_OF_RUNS] = {0};
   if (argv[1] != NULL) /* If the user has putten in a single argument */
   {
     if (checkProgramParameter(argv[1])) /* If the user only wants to print the results of all functions that is relevant */
@@ -82,8 +83,8 @@ int main(int argc, char *argv[])
       {
         printRider(rider[i]);
       }*/
-      printf("Points: %d\n", calculatePoints("1", 199));
-      givePoints(rider);
+      givePoints(rider, points);
+      printf("Name: %s Points: %d\n", points[0].Name, points[0].Points);
       return EXIT_SUCCESS;
     }
   }
@@ -145,10 +146,9 @@ void printRider(Rider _rider)
   printf("Team: %s, Country: %s, Placing: %s, Time: %s\n", _rider.TeamName, _rider.Country, _rider.Placing, _rider.Time);
 }
 
-void givePoints(Rider *_rider)
+void givePoints(Rider *_rider, RiderPoints *_points)
 {
   int i, j, total[4], race;
-  RiderPoints points[AMOUNT_OF_RUNS] = {0};
   countRidersInRace(_rider, total);
 
   for(i = 0; i < AMOUNT_OF_RUNS; ++i) /* Go through all the riders */
@@ -156,20 +156,19 @@ void givePoints(Rider *_rider)
     race = findRace(_rider[i]);
     for(j = 0; j <= i; ++j) /* Nested loop to check for every entry in the array*/
     {
-      if (points[j].Name[0] == '\0') /* If points[j] is null, then add a new entry. Skip if it isn't */
+      if (_points[j].Name[0] == '\0') /* If points[j] is null, then add a new entry. Skip if it isn't */
       {
-        strcpy(points[j].Name, _rider[i].Name); /* Copies the name to the new struct array */
-        points[j].Points += calculatePoints(_rider[i].Placing, total[race]);
+        strcpy(_points[j].Name, _rider[i].Name); /* Copies the name to the new struct array */
+        _points[j].Points += calculatePoints(_rider[i].Placing, total[race]);
         break;
       }
-      else if (strcmp(points[j].Name, _rider[i].Name) == 0) /* Checks if name is there. If not then loop, if there is then add  */
+      else if (strcmp(_points[j].Name, _rider[i].Name) == 0) /* Checks if name is there. If not then loop, if there is then add  */
       {
-        points[j].Points += calculatePoints(_rider[i].Placing, total[race]); /* Assigns the current amount + calculated points */
+        _points[j].Points += calculatePoints(_rider[i].Placing, total[race]); /* Assigns the current amount + calculated points */
         break; /* Break out of the loop */
       }
     }
   }
-  printf("Name: %s Points: %d\n", points[0].Name, points[0].Points);
 }
 
 void countRidersInRace(Rider *_rider, int *total)

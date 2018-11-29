@@ -41,6 +41,7 @@ int getRiders(Rider *_rider); /* Puts the riders in the struct array. Returns 1 
 int checkProgramParameter(const char *_parameter); /* Checks the program parameters if it is --print */
 void printUserInteraction(void); /* Prints user interaction sequence */
 void printRider(Rider *_rider, int _identifier); /* Prints the rider into console */
+void printLine(void);
 
 Rider *danishRidersWithPlacing(Rider *_rider); /* Function that returns a pointer to an array */
 int checkArrayForDigit(const char *_string); /* Checks an array. Returns 1 if it is just numbers and 0 if there is a letter */
@@ -73,7 +74,24 @@ int main(int argc, char *argv[])
       }
       else
       {
-        printf("Argv = %s\n", argv[1]);
+        /* 1 */
+
+        printLine();
+        /* 2 */
+        races = danishRidersWithPlacing(rider);
+        printRider(races, 2);
+        printLine();
+        /* 3 */
+        givePoints(rider, points);
+        qsort(points, AMOUNT_OF_RUNS, sizeof(Rider), comparePoints);
+        printRider(points, 3);
+        printLine();
+        /* 4 */
+
+        printLine();
+        /* 5 */
+
+        printLine();
         return EXIT_SUCCESS;
       }
     }
@@ -206,6 +224,11 @@ void printRider(Rider *_rider, int _identifier)
       printf("Name: %s | Points: %d\n", _rider[i].Name, _rider[i].Points);
     }
   }
+}
+
+void printLine(void)
+{
+  printf("___________________________________________________\n");
 }
 
 /* -------------------------------- End -------------------------------- */

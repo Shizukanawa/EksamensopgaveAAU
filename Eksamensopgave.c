@@ -33,32 +33,30 @@ typedef struct Rider
   char Placing[MAX_LENGTH_ABBREV];
   char Time[TIME_LENGTH];
   int Age;
-} Rider;
-
-typedef struct RiderPoints
-{
-  char Name[MAX_LENGTH_NAMES];
   int Points;
-} RiderPoints;
+  int Races;
+} Rider;
 
 int getRiders(Rider *_rider); /* Puts the riders in the struct array. Returns 1 if the file is there and 0 if the file isn't there or null */
 int checkProgramParameter(const char *_parameter); /* Checks the program parameters if it is --print */
 void printUserInteraction(void); /* Prints user interaction sequence */
-void printRider(Rider _rider); /* Prints the rider into console */
-void givePoints(Rider *_rider, RiderPoints *_points); /* Gives the rider points based on his placings */
+void printRider(Rider *_rider, int _identifier); /* Prints the rider into console */
+void givePoints(Rider *_rider, Rider *_points); /* Gives the rider points based on his placings */
 void countRidersInRace(Rider *_rider, int *_total); /* Counts the riders, including DNF, in a given race */
 int calculatePoints(char *_placing, int _racetotal); /* Calculates the points */
 int findRace(Rider _rider); /* Finds a specific race */
-void sortPoints(RiderPoints *_points);
-int comparePoints(const void *_first, const void *_second);
-void getLastName(const char *_input, char *_output, int _stringlength);
+void sortPoints(Rider *_points); /* Function that sorts the riders points */
+int comparePoints(const void *_first, const void *_second); /* Sorting function for qsort */
+void getLastName(const char *_input, char *_output, int _stringlength); /* Function that gets the last name via output array */
+Rider *danishRidersTop10();
 
 int main(int argc, char *argv[])
 {
-  int i, userinput;
+  int userinput;
 
   Rider rider[AMOUNT_OF_RUNS];
-  RiderPoints points[AMOUNT_OF_RUNS] = {0};
+  Rider points[AMOUNT_OF_RUNS];
+  /*Rider races[AMOUNT_OF_RUNS];*/
 
   if (argv[1] != NULL) /* If the user has putten in a single argument */
   {
@@ -85,37 +83,38 @@ int main(int argc, char *argv[])
     }
     else
     {
-      if (userinput == 1)
+      if (userinput == 1) /* Italians over 30 */
       {
-        printf("User input: %d", userinput);
+        printf("User input: %d\n", userinput);
+        return EXIT_SUCCESS;
       }
-      else if (userinput == 2)
+      else if (userinput == 2) /*  */
       {
-        printf("User input: %d", userinput);
+        printf("User input: %d\n", userinput);
+        return EXIT_SUCCESS;
       }
       else if (userinput == 3)
       {
         givePoints(rider, points);
         sortPoints(points);
-
-        for(i = 0; i < 10; ++i)
-        {
-          printf("Name: %s Points: %d\n", points[i].Name, points[i].Points);
-        }
+        printRider(points, 3);
+        return EXIT_SUCCESS;
       }
       else if (userinput == 4)
       {
-        printf("User input: %d", userinput);
+        printf("User input: %d\n", userinput);
+        return EXIT_SUCCESS;
       }
       else if (userinput == 5)
       {
-        printf("User input: %d", userinput);
+        printf("User input: %d\n", userinput);
+        return EXIT_SUCCESS;
       }
-      else if (userinput == -1)
+      else
       {
         printf("Exiting program...\n");
+        return EXIT_SUCCESS;
       }
-      return EXIT_SUCCESS;
     }
   }
 }
@@ -168,16 +167,27 @@ void printUserInteraction(void)
   printf("(3) Top 10 riders\n");
   printf("(4) Best rider in Paris Roubaix & Amstel Gold Race\n");
   printf("(5) Average age of riders with top 10 in a race\n");
-  printf("(-1) Exit program\n");
+  printf("(Any other number) Exit program\n");
 }
 
-void printRider(Rider _rider)
+void printRider(Rider *_rider, int _identifier)
 {
-  printf("Race name: %s | Rider: %s, Age: %d, ", _rider.RaceName, _rider.Name, _rider.Age);
-  printf("Team: %s, Country: %s, Placing: %s, Time: %s\n", _rider.TeamName, _rider.Country, _rider.Placing, _rider.Time);
+  int i;
+  if (_identifier == 1)
+  {
+    /*printf("Race name: %s | Rider: %s | Age: %d | ", _rider.RaceName, _rider.Name, _rider.Age);
+    printf("Team: %s | Country: %s | Placing: %s | Time: %s\n", _rider.TeamName, _rider.Country, _rider.Placing, _rider.Time);*/
+  }
+  if (_identifier == 3)
+  {
+    for(i = 0; i < 10; ++i)
+    {
+      printf("Name: %s Points: %d\n", _rider[i].Name, _rider[i].Points);
+    }
+  }
 }
 
-void givePoints(Rider *_rider, RiderPoints *_points)
+void givePoints(Rider *_rider, Rider *_points)
 {
   int i, j, total[4], race;
   countRidersInRace(_rider, total);
@@ -247,15 +257,15 @@ int calculatePoints(char *_placing, int _racetotal)
     return (_racetotal - atoi(_placing))/13 + 3; /* Gets 3 extra points for being within timelimit */
 }
 
-void sortPoints(RiderPoints *_points)
+void sortPoints(Rider *_points)
 {
-  qsort(_points, AMOUNT_OF_RUNS, sizeof(RiderPoints), comparePoints);
+  qsort(_points, AMOUNT_OF_RUNS, sizeof(Rider), comparePoints);
 }
 
 int comparePoints(const void *_first, const void *_second)
 {
-  const RiderPoints *pfirst = _first;
-  const RiderPoints *psecond = _second;
+  const Rider *pfirst = _first;
+  const Rider *psecond = _second;
   int firstresult = strlen(pfirst->Name), secondresult = strlen(psecond->Name); /* Gets the amount of chars in name */
   char firstsurname[MAX_LENGTH_NAMES] = {0}, secondsurname[MAX_LENGTH_NAMES] = {0}; /* Sets the char arrays to null */
 
@@ -290,3 +300,8 @@ void getLastName(const char *_input, char *_output, int _stringlength)
   _output[j] = _input[i-1];/* Gets the last character in the name */
   _output[++j] = '\0'; /* Ends with \0 so the string ends there */
 }
+
+/*Rider *danishRidersTop10()
+{
+
+}*/

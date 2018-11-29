@@ -51,6 +51,7 @@ int calculatePoints(char *_placing, int _racetotal); /* Calculates the points */
 int findRace(Rider _rider); /* Finds a specific race */
 void sortPoints(RiderPoints *_points);
 int comparePoints(const void *_first, const void *_second);
+void getLastName(const char *_input, char *_output, int _stringlength);
 
 int main(int argc, char *argv[])
 {
@@ -255,48 +256,37 @@ int comparePoints(const void *_first, const void *_second)
 {
   const RiderPoints *pfirst = _first;
   const RiderPoints *psecond = _second;
-  int i, j = 0, firstresult = strlen(pfirst->Name), secondresult = strlen(psecond->Name);
-  char firstsurname[MAX_LENGTH_NAMES] = {0}, secondsurname[MAX_LENGTH_NAMES] = {0};
+  int firstresult = strlen(pfirst->Name), secondresult = strlen(psecond->Name); /* Gets the amount of chars in name */
+  char firstsurname[MAX_LENGTH_NAMES] = {0}, secondsurname[MAX_LENGTH_NAMES] = {0}; /* Sets the char arrays to null */
 
-  if (pfirst->Points < psecond->Points)
+  if (pfirst->Points < psecond->Points) /* If second has more points than first return second */
     return 1;
-  else if (pfirst->Points > psecond->Points)
+  else if (pfirst->Points > psecond->Points) /* If first has more points than second return first */
     return -1;
-  else
+  else /* If the amount of points are the same, get last names and compare and return that value */
   {
-    for(i = 0; i < firstresult; ++i) /* Gets the first persons last name */
-    {
-      if ((isupper(pfirst->Name[i]) && isupper(pfirst->Name[i+1])) || (isupper(pfirst->Name[i]) && pfirst->Name[i+1] == ' '))
-      { /* if name[i] is uppercase and the one after is uppercase or name[i] is uppercase and the one after is a space*/
-        firstsurname[j] = pfirst->Name[i];
-        ++j;
-      }
-      else if (pfirst->Name[i] == ' ' && isupper(pfirst->Name[i+1]))
-      { /* If the last name contains a space */
-        firstsurname[j] = ' ';
-        ++j;
-      }
-    }
-    firstsurname[j] = pfirst->Name[i-1];
-    firstsurname[++j] = '\0';
-
-    j = 0;
-    for(i = 0; i < secondresult; ++i) /* Get second persons last name */
-    {
-      if ((isupper(psecond->Name[i]) && isupper(psecond->Name[i+1])) || (isupper(psecond->Name[i]) && psecond->Name[i+1] == ' '))
-      {
-        secondsurname[j] = psecond->Name[i];
-        ++j;
-      }
-      else if (psecond->Name[i] == ' ' && isupper(psecond->Name[i+1]))
-      {
-        secondsurname[j] = ' ';
-        ++j;
-      }
-    }
-    secondsurname[j] = psecond->Name[i-1];
-    secondsurname[++j] = '\0';
-    
+    getLastName(pfirst->Name, firstsurname, firstresult);
+    getLastName(psecond->Name, secondsurname, secondresult);
     return strcmp(firstsurname, secondsurname); /* Compares and returns */
   }
+}
+
+void getLastName(const char *_input, char *_output, int _stringlength)
+{
+  int i, j = 0;
+  for(i = 0; i < _stringlength; ++i) /* Runs through the entire array */
+  {
+    if ((isupper(_input[i]) && isupper(_input[i+1])) || (isupper(_input[i]) && _input[i+1] == ' '))
+    { /* if name[i] is uppercase and the one after is uppercase or name[i] is uppercase and the one after is a space*/
+      _output[j] = _input[i]; /* Copies values over */
+      ++j;
+    }
+    else if (_input[i] == ' ' && isupper(_input[i+1]))
+    { /* If the last name contains a space */
+      _output[j] = ' ';
+      ++j;
+    }
+  }
+  _output[j] = _input[i-1];/* Gets the last character in the name */
+  _output[++j] = '\0'; /* Ends with \0 so the string ends there */
 }

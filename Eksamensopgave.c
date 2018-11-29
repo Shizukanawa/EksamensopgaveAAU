@@ -41,15 +41,16 @@ int getRiders(Rider *_rider); /* Puts the riders in the struct array. Returns 1 
 int checkProgramParameter(const char *_parameter); /* Checks the program parameters if it is --print */
 void printUserInteraction(void); /* Prints user interaction sequence */
 void printRider(Rider *_rider, int _identifier); /* Prints the rider into console */
+
+Rider *danishRidersWithPlacing(Rider *_rider); /* Function that returns a pointer to an array */
+int checkArrayForDigit(const char *_string); /* Checks an array. Returns 1 if it is just numbers and 0 if there is a letter */
+
 void givePoints(Rider *_rider, Rider *_points); /* Gives the rider points based on his placings */
 void countRidersInRace(Rider *_rider, int *_total); /* Counts the riders, including DNF, in a given race */
 int calculatePoints(char *_placing, int _racetotal); /* Calculates the points */
 int findRace(Rider _rider); /* Finds a specific race */
-void sortPoints(Rider *_points); /* Function that sorts the riders points */
 int comparePoints(const void *_first, const void *_second); /* Sorting function for qsort */
 void getLastName(const char *_input, char *_output, int _stringlength); /* Function that gets the last name via output array */
-Rider *danishRidersWithPlacing(Rider *_rider); /* Function that returns a pointer to an array */
-int checkArrayForDigit(const char *_string); /* Checks an array. Returns 1 if it is just numbers and 0 if there is a letter */
 
 /* -------------------------------- Main -------------------------------- */
 
@@ -99,25 +100,25 @@ int main(int argc, char *argv[])
         printf("User input: %d\n", userinput);
         return EXIT_SUCCESS;
       }
-      else if (userinput == 2) /*  */
+      else if (userinput == 2) /* Danish with placings */
       {
         races = danishRidersWithPlacing(rider);
         printRider(races, 2);
         return EXIT_SUCCESS;
       }
-      else if (userinput == 3)
+      else if (userinput == 3) /* Top 10 with points */
       {
         givePoints(rider, points);
-        sortPoints(points);
+        qsort(points, AMOUNT_OF_RUNS, sizeof(Rider), comparePoints);
         printRider(points, 3);
         return EXIT_SUCCESS;
       }
-      else if (userinput == 4)
+      else if (userinput == 4) /* Best rider in Parix and Amstel */
       {
         printf("User input: %d\n", userinput);
         return EXIT_SUCCESS;
       }
-      else if (userinput == 5)
+      else if (userinput == 5) /* Average age between top 10 finishes */
       {
         printf("User input: %d\n", userinput);
         return EXIT_SUCCESS;
@@ -326,11 +327,6 @@ int calculatePoints(char *_placing, int _racetotal)
     return (_racetotal - atoi(_placing))/13 + 2 + 3; /* 3rd */
   else /* Gets a placing that isn't OTL or DNF */
     return (_racetotal - atoi(_placing))/13 + 3; /* Gets 3 extra points for being within timelimit */
-}
-
-void sortPoints(Rider *_points)
-{
-  qsort(_points, AMOUNT_OF_RUNS, sizeof(Rider), comparePoints);
 }
 
 int comparePoints(const void *_first, const void *_second)

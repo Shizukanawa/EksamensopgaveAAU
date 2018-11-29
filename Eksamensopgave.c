@@ -3,7 +3,7 @@
 #include <string.h>
 #include <ctype.h>
 
-#define AMOUNT_OF_RUNS 790
+#define AMOUNT_OF_RUNS 800
 #define MAX_LENGTH_NAMES 40
 #define MAX_LENGTH_ABBREV 3+1
 #define TIME_LENGTH 7
@@ -13,11 +13,11 @@ TODO LIST:
 O Make the program able to read the file
 O Find a way to handle "-" in timing. Perhaps use atoi if "-" is not found.
 X All italian riders over 30
-X Function that returns an array of Danish riders that has a placing or OTL but not listing them twice.
+O Function that returns an array of Danish riders that has a placing or OTL but not listing them twice.
 
 O Give riders points !!!!!
 
-X Print 10 riders that has most points and sort. If 2 or more has the same amount of points sort after surname
+O Print 10 riders that has most points and sort. If 2 or more has the same amount of points sort after surname
 X In Paris Roubaix and Amstel Gold Race, find the rider that has completed both and has the lowest amount of runtime.
 X Calculate average age(doubles) across all riders that has gotten a top 10 in a run and not listing them twice.
 */
@@ -48,7 +48,10 @@ int findRace(Rider _rider); /* Finds a specific race */
 void sortPoints(Rider *_points); /* Function that sorts the riders points */
 int comparePoints(const void *_first, const void *_second); /* Sorting function for qsort */
 void getLastName(const char *_input, char *_output, int _stringlength); /* Function that gets the last name via output array */
-Rider *danishRidersTop10();
+Rider *danishRidersWithPlacing(Rider *_rider); /* Function that returns a pointer to an array */
+int checkArrayForDigit(const char *_string); /* Checks an array. Returns 1 if it is just numbers and 0 if there is a letter */
+
+/* -------------------------------- Main -------------------------------- */
 
 int main(int argc, char *argv[])
 {
@@ -56,14 +59,22 @@ int main(int argc, char *argv[])
 
   Rider rider[AMOUNT_OF_RUNS];
   Rider points[AMOUNT_OF_RUNS];
-  /*Rider races[AMOUNT_OF_RUNS];*/
+  Rider *races;
 
   if (argv[1] != NULL) /* If the user has putten in a single argument */
   {
     if (checkProgramParameter(argv[1])) /* If the user only wants to print the results of all functions that is relevant */
     {
-      printf("Argv = %s\n", argv[1]);
-      return EXIT_SUCCESS;
+      if (getRiders(rider) == 0) /* If it returns 0 */
+      {
+        printf("Exiting program...\n");
+        return EXIT_FAILURE;
+      }
+      else
+      {
+        printf("Argv = %s\n", argv[1]);
+        return EXIT_SUCCESS;
+      }
     }
     else /* If the function checkProgramParameter returns 0 */
     {
@@ -90,7 +101,8 @@ int main(int argc, char *argv[])
       }
       else if (userinput == 2) /*  */
       {
-        printf("User input: %d\n", userinput);
+        races = danishRidersWithPlacing(rider);
+        printRider(races, 2);
         return EXIT_SUCCESS;
       }
       else if (userinput == 3)
@@ -118,6 +130,9 @@ int main(int argc, char *argv[])
     }
   }
 }
+
+/* -------------------------------- End -------------------------------- */
+/* ------------------------------- Start ------------------------------- */
 
 int getRiders(Rider *_rider)
 {
@@ -178,14 +193,70 @@ void printRider(Rider *_rider, int _identifier)
     /*printf("Race name: %s | Rider: %s | Age: %d | ", _rider.RaceName, _rider.Name, _rider.Age);
     printf("Team: %s | Country: %s | Placing: %s | Time: %s\n", _rider.TeamName, _rider.Country, _rider.Placing, _rider.Time);*/
   }
+  if (_identifier == 2)
+  {
+    for(i = 0; strcmp(_rider[i].Name, "") != 0; ++i) /* Runs until name is empty since Race has a lot of empty space */
+      printf("Name: %s | Races: %d\n", _rider[i].Name, _rider[i].Races);
+  }
   if (_identifier == 3)
   {
     for(i = 0; i < 10; ++i)
     {
-      printf("Name: %s Points: %d\n", _rider[i].Name, _rider[i].Points);
+      printf("Name: %s | Points: %d\n", _rider[i].Name, _rider[i].Points);
     }
   }
 }
+
+/* -------------------------------- End -------------------------------- */
+/* ---------------------- Functions for assignement 1 ------------------ */
+
+
+
+/* -------------------------------- End -------------------------------- */
+/* ---------------------- Functions for assignement 2 ------------------ */
+
+Rider *danishRidersWithPlacing(Rider *_rider) /* Returning a pointer to arrray from: https://www.tutorialspoint.com/cprogramming/c_return_arrays_from_function.htm */
+{
+  static Rider races[AMOUNT_OF_RUNS];
+  int i, j, checkcountry, checkplacing, resultdigits;
+
+  for(i = 0; i < AMOUNT_OF_RUNS; ++i) /* Go through all the riders */
+  {
+    checkcountry = strcmp(_rider[i].Country, "DEN");
+    resultdigits = checkArrayForDigit(_rider[i].Placing);
+    checkplacing = strcmp(_rider[i].Placing, "OTL");
+    for(j = 0; j <= i; ++j) /* Nested loop to check for every entry in the array*/
+    {
+      if (races[j].Name[0] == '\0' && checkcountry == 0 && (resultdigits || checkplacing == 0))
+      {
+        strcpy(races[j].Name, _rider[i].Name); /* Copies the name to the new struct array */
+        races[j].Races = 1;
+        break;
+      }
+      else if (strcmp(races[j].Name, _rider[i].Name) == 0 && (resultdigits || checkplacing == 0)) /* Checks if name is there. If not then loop, if there is then add  */
+      {
+        races[j].Races += 1;
+        break; /* Break out of the loop */
+      }
+    }
+  }
+
+  return races;
+}
+
+int checkArrayForDigit(const char *_string)
+{
+  int i, length = strlen(_string);
+  for(i = 0; i < length; ++i)
+  {
+    if(!isdigit(_string[i]))
+      return 0;
+  }
+  return 1;
+}
+
+/* -------------------------------- End -------------------------------- */
+/* ---------------------- Functions for assignment 3 ------------------- */
 
 void givePoints(Rider *_rider, Rider *_points)
 {
@@ -267,7 +338,7 @@ int comparePoints(const void *_first, const void *_second)
   const Rider *pfirst = _first;
   const Rider *psecond = _second;
   int firstresult = strlen(pfirst->Name), secondresult = strlen(psecond->Name); /* Gets the amount of chars in name */
-  char firstsurname[MAX_LENGTH_NAMES] = {0}, secondsurname[MAX_LENGTH_NAMES] = {0}; /* Sets the char arrays to null */
+  char firstsurname[MAX_LENGTH_NAMES], secondsurname[MAX_LENGTH_NAMES];
 
   if (pfirst->Points < psecond->Points) /* If second has more points than first return second */
     return 1;
@@ -291,8 +362,8 @@ void getLastName(const char *_input, char *_output, int _stringlength)
       _output[j] = _input[i]; /* Copies values over */
       ++j;
     }
-    else if (_input[i] == ' ' && isupper(_input[i+1]))
-    { /* If the last name contains a space */
+    else if (_input[i] == ' ' && isupper(_input[i+1])) /* If the last name contains a space */
+    {
       _output[j] = ' ';
       ++j;
     }
@@ -301,7 +372,4 @@ void getLastName(const char *_input, char *_output, int _stringlength)
   _output[++j] = '\0'; /* Ends with \0 so the string ends there */
 }
 
-/*Rider *danishRidersTop10()
-{
-
-}*/
+/* -------------------------------- End -------------------------------- */

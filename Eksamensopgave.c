@@ -233,7 +233,7 @@ void printRider(Rider *_rider, int _identifier)
   if (_identifier == 2)
   {
     for(i = 0; strcmp(_rider[i].Name, "") != 0; ++i) /* Runs until name is empty since Race has a lot of empty space */
-      printf("Name: %-25s | Races: %-1d |\n", _rider[i].Name, _rider[i].Races); /* https://stackoverflow.com/questions/14420924/aligning-output-values-in-c for alignment */
+      printf("Name: %-25s | Country: %-3s | Races: %-1d |\n", _rider[i].Name, _rider[i].Country ,_rider[i].Races); /* https://stackoverflow.com/questions/14420924/aligning-output-values-in-c for alignment */
   }
   if (_identifier == 3)
   {
@@ -298,6 +298,7 @@ Rider *danishRidersWithPlacing(const Rider *_rider) /* Returning a pointer to ar
       if (races[j].Name[0] == '\0' && checkCountry == 0 && (resultDigits || checkPlacing == 0))
       {
         strcpy(races[j].Name, _rider[i].Name); /* Copies the name to the new struct array */
+        strcpy(races[j].Country, _rider[i].Country);
         races[j].Races = 1;
         break;
       }

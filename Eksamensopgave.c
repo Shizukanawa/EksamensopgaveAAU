@@ -118,7 +118,7 @@ int main(int argc, char *argv[]) /* Help with argc and argv from https://www.tut
         printLine();
 
         /* 5 */
-
+        printf("Average age for riders with top 10 placing: %lf\n", averageAgeTop10(rider));
         printLine();
         return EXIT_SUCCESS;
       }
@@ -172,6 +172,7 @@ int main(int argc, char *argv[]) /* Help with argc and argv from https://www.tut
       }
       else if (userinput == 5) /* Average age between top 10 finishes */
       {
+        printf("Average age for riders with top 10 placing: %lf\n", averageAgeTop10(rider));
         return EXIT_SUCCESS;
       }
       else
@@ -500,29 +501,30 @@ Rider compareTime(const Rider _firstRider, const Rider _secondRider)
 /* -------------------------------- End -------------------------------- */
 /* ---------------------- Functions for assignement 5 ------------------ */
 
-/*double averageAgeTop10(Rider *_rider)
+double averageAgeTop10(Rider *_rider)
 {
-  int i, j, sumOfAge = 0;
-  double averageAge;
+  int i = 0, j, sumOfAge = 0, personsCounted = 0; 
   Rider names[40];
 
   for(i = 0; i < AMOUNT_OF_RUNS; ++i)
   {
-    for(j = 0)
+    for(j = 0; j <= i; ++j)
     {
-      if(isTop10(_rider[i]) && names[j].Name[0] == '\0')
+      if(isTop10(_rider[i]) && names[j].Name[0] == '\0') /* If names[j] is empty */
       {
-        strcpy(names[j], _rider[i]);
+        strcpy(names[j].Name, _rider[i].Name);
         sumOfAge += _rider[i].Age;
+        ++personsCounted;
         break;
       }
-      else if(isTop10(_rider[i]) && strcmp(names[j].Name, _rider[i].Name) != 0)
+      else if(isTop10(_rider[i]) && strcmp(names[j].Name, _rider[i].Name) == 0) /* If name exist, break */
       {
         break;
       }
     }
   }
-}*/
+  return (double) sumOfAge/personsCounted; /* Typecasting for average age */
+}
 
 int isTop10(Rider _rider)
 {
@@ -535,3 +537,4 @@ int isTop10(Rider _rider)
   else
     return 0;
 }
+/* -------------------------------- End -------------------------------- */

@@ -8,19 +8,6 @@
 #define MAX_LENGTH_ABBREV 3+1
 #define TIME_LENGTH 7
 #define AGE_LENGTH 3
-/*
-TODO LIST:
-O Make the program able to read the file
-O Find a way to handle "-" in timing. Perhaps use atoi if "-" is not found.
-X All italian riders over 30
-O Function that returns an array of Danish riders that has a placing or OTL but not listing them twice.
-
-O Give riders points !!!!!
-
-O Print 10 riders that has most points and sort. If 2 or more has the same amount of points sort after surname
-O In Paris Roubaix and Amstel Gold Race, find the rider that has completed both and has the lowest amount of runtime.
-X Calculate average age(doubles) across all riders that has gotten a top 10 in a run and not listing them twice.
-*/
 
 enum RaceNames {ParisRoubaix, AmstelGoldRace, LaFlecheWallonne, LiegeBastogneLiege};
 enum Time {Hours, Minutes, Seconds};
@@ -52,7 +39,7 @@ void printLine(void);
 Rider *danishRidersWithPlacing(const Rider *_rider); /* Function that returns a pointer to an array */
 int checkArrayForDigit(const char *_string); /* Checks an array. Returns 1 if it is just numbers and 0 if there is a letter */
 
-void givePoints(const Rider *_rider, Rider *_points); /* Gives the rider points based on his placings */
+Rider *givePoints(const Rider *_rider); /* Gives the rider points based on his placings */
 void countRidersInRace(const Rider *_rider, int *_total); /* Counts the riders, including DNF, in a given race */
 int calculatePoints(const char *_placing, const int _racetotal); /* Calculates the points */
 int findRace(const Rider _rider); /* Finds a specific race */
@@ -73,8 +60,7 @@ int main(int argc, char *argv[]) /* Help with argc and argv from https://www.tut
   char bestRiderName[MAX_LENGTH_NAMES];
 
   Rider rider[AMOUNT_OF_RUNS];
-  Rider points[AMOUNT_OF_RUNS];
-  Rider *races;
+  Rider *races, *points;
 
   Rider bestRider[1];
 
@@ -103,8 +89,7 @@ int main(int argc, char *argv[]) /* Help with argc and argv from https://www.tut
 
         /* 3 */
 
-        givePoints(rider, points);
-        qsort(points, AMOUNT_OF_RUNS, sizeof(Rider), comparePoints);
+        points = givePoints(rider);
         printRider(points, 3);
         printLine();
 
@@ -156,8 +141,7 @@ int main(int argc, char *argv[]) /* Help with argc and argv from https://www.tut
       }
       else if (userinput == 3) /* Top 10 with points */
       {
-        givePoints(rider, points);
-        qsort(points, AMOUNT_OF_RUNS, sizeof(Rider), comparePoints);
+        points = givePoints(rider);
         printRider(points, 3);
         return EXIT_SUCCESS;
       }
@@ -280,7 +264,7 @@ void printItalianResultsOver30(const Rider *_rider)
     if(strcmp(_rider[i].Country, "ITA") == 0 && _rider[i].Age > 30)
     {
       printf("Race: %s | Name: %s | Age: %d ", _rider[i].RaceName, _rider[i].Name, _rider[i].Age);
-      printf("| Country: %s | Placing: %s | Time: %s\n", _rider[i].Country, _rider[i].Placing, _rider[i].Time);
+      printf("| Team: %s | Country: %s | Placing: %s | Time: %s\n", _rider[i].TeamName, _rider[i].Country, _rider[i].Placing, _rider[i].Time);
     }
   }
 }
@@ -330,8 +314,9 @@ int checkArrayForDigit(const char *_string)
 /* -------------------------------- End -------------------------------- */
 /* ---------------------- Functions for assignment 3 ------------------- */
 
-void givePoints(const Rider *_rider, Rider *_points)
+Rider *givePoints(const Rider *_rider)
 {
+  static Rider points[AMOUNT_OF_RUNS];
   int i, j, total[4], race; /* i = Going through all the riders and j = going through _points array */
   countRidersInRace(_rider, total);
 
@@ -340,19 +325,21 @@ void givePoints(const Rider *_rider, Rider *_points)
     race = findRace(_rider[i]);
     for(j = 0; j <= i; ++j) /* Nested loop to check for every entry in the array*/
     {
-      if (_points[j].Name[0] == '\0') /* If points[j] is null, then add a new entry. Skip if it isn't */
+      if (points[j].Name[0] == '\0') /* If points[j] is null, then add a new entry. Skip if it isn't */
       {
-        strcpy(_points[j].Name, _rider[i].Name); /* Copies the name to the new struct array */
-        _points[j].Points += calculatePoints(_rider[i].Placing, total[race]);
+        strcpy(points[j].Name, _rider[i].Name); /* Copies the name to the new struct array */
+        points[j].Points += calculatePoints(_rider[i].Placing, total[race]);
         break;
       }
-      else if (strcmp(_points[j].Name, _rider[i].Name) == 0) /* Checks if name is there. If not then loop, if there is then add  */
+      else if (strcmp(points[j].Name, _rider[i].Name) == 0) /* Checks if name is there. If not then loop, if there is then add  */
       {
-        _points[j].Points += calculatePoints(_rider[i].Placing, total[race]); /* Assigns the current amount + calculated points */
+        points[j].Points += calculatePoints(_rider[i].Placing, total[race]); /* Assigns the current amount + calculated points */
         break; /* Break out of the loop */
       }
     }
   }
+  qsort(points, AMOUNT_OF_RUNS, sizeof(Rider), comparePoints);
+  return points;
 }
 
 void countRidersInRace(const Rider *_rider, int *_total)
@@ -415,7 +402,7 @@ int comparePoints(const void *_first, const void *_second)
   {
     getLastName(pfirst->Name, firstResult, firstSurname);
     getLastName(psecond->Name, secondResult, secondSurname);
-    return strcmp(firstSurname, secondSurname); /* Compares and returns */
+    return strcmp(firstSurname, secondSurname);
   }
 }
 

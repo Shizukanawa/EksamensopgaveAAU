@@ -107,7 +107,7 @@ int main(int argc, char *argv[]) /* Help with argc and argv from https://www.tut
         printLine();
 
         /* 5 */
-        printf("Average age for riders with top 10 placing: %lf\n", averageAgeTop10(rider));
+        printf("| Average age for riders with top 10 placing: %lf |\n", averageAgeTop10(rider));
         printLine();
         printEnd();
         return EXIT_SUCCESS;
@@ -161,7 +161,7 @@ int main(int argc, char *argv[]) /* Help with argc and argv from https://www.tut
       }
       else if (userinput == 5) /* Average age between top 10 finishes */
       {
-        printf("Average age for riders with top 10 placing: %lf\n", averageAgeTop10(rider));
+        printf("| Average age for riders with top 10 placing: %lf |\n", averageAgeTop10(rider));
         return EXIT_SUCCESS;
       }
       else
@@ -194,7 +194,7 @@ int getRiders(Rider *_rider)
     int i;
     for (i = 0; !feof(fp); ++i)
     {
-      fscanf(fp, " %s \"%[A-Za-z-' ]\" | %s %s %s | %s %s", /* Tak til Anja Elisasen Lumholtz Nielsen for \" */
+      fscanf(fp, " %s \"%[A-Za-z-' ]\" | %s %s %s | %s %s", /* Thanks to Anja Elisasen Lumholtz Nielsen for \" */
       _rider[i].RaceName,
       _rider[i].Name,
       age,
@@ -233,7 +233,7 @@ void printRider(Rider *_rider, int _identifier)
   if (_identifier == 2)
   {
     for(i = 0; strcmp(_rider[i].Name, "") != 0; ++i) /* Runs until name is empty since Race has a lot of empty space */
-      printf("Name: %s | Races: %d\n", _rider[i].Name, _rider[i].Races);
+      printf("Name: %-25s | Races: %-1d |\n", _rider[i].Name, _rider[i].Races); /* https://stackoverflow.com/questions/14420924/aligning-output-values-in-c for alignment */
   }
   if (_identifier == 3)
   {
@@ -245,12 +245,12 @@ void printRider(Rider *_rider, int _identifier)
       }
       else if (strcmp(_rider[i].Name, " ") != 0 && _rider[i].Name[0] != '\0')
       {
-        printf("Name: %s | Points: %d\n", _rider[i].Name, _rider[i].Points);
+        printf("Name: %-28s | Points: %-1d |\n", _rider[i].Name, _rider[i].Points);
       }
     }
   }
   if (_identifier == 4)
-    printf("Best rider: %s Hours: %d Minutes: %d Seconds: %d\n", _rider->Name, _rider->Hours, _rider->Minutes, _rider->Seconds);
+    printf("| Best rider: %-20s | Hours: %d | Minutes: %d | Seconds: %d |\n", _rider->Name, _rider->Hours, _rider->Minutes, _rider->Seconds);
 }
 
 void printLine(void)
@@ -274,8 +274,8 @@ void printItalianResultsOver30(const Rider *_rider)
   {
     if(strcmp(_rider[i].Country, "ITA") == 0 && _rider[i].Age > 30)
     {
-      printf("Race: %s | Name: %s | Age: %d ", _rider[i].RaceName, _rider[i].Name, _rider[i].Age);
-      printf("| Team: %s | Country: %s | Placing: %s | Time: %s\n", _rider[i].TeamName, _rider[i].Country, _rider[i].Placing, _rider[i].Time);
+      printf("| Race: %-20s | Name: %-20s | Age: %-1d ", _rider[i].RaceName, _rider[i].Name, _rider[i].Age);
+      printf("| Team: %-1s | Country: %-1s | Placing: %-3s | Time: %-10s |\n", _rider[i].TeamName, _rider[i].Country, _rider[i].Placing, _rider[i].Time);
     }
   }
 }

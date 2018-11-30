@@ -239,7 +239,7 @@ void printRider(Rider *_rider, int _identifier)
   {
     for(i = 0; i < top10; ++i) 
     {
-      if(_rider[i].Name[0] == '\0' || _rider[i].Name[0] == '') /* Failsafe */
+      if(_rider[i].Name[0] == '\0' || _rider[i].Name[0] == '') /* Failsafe.  is 3. 3 is apparently end of text according to http://www.asciitable.com/ */
       {
         ++top10;
       }

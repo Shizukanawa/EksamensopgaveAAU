@@ -41,6 +41,8 @@ typedef struct Rider
   int Seconds;
 } Rider;
 
+void printItalianResultsOver30(const Rider *_rider);
+
 int getRiders(Rider *_rider); /* Puts the riders in the struct array. Returns 1 if the file is there and 0 if the file isn't there or null */
 int checkProgramParameter(const char *_parameter); /* Checks the program parameters if it is --print */
 void printUserInteraction(void); /* Prints user interaction sequence */
@@ -60,8 +62,8 @@ void getLastName(const char *_input, int _stringLength, char *_output); /* Funct
 void getBestPerforming(const Rider *_rider, int *_outTime, char *_outName); /* Finds the best performing that has a time in both Paris and Amstel */
 Rider compareTime(Rider _firstRider, Rider _secondRider); /* Comparing function to find the lowest time */
 
-double averageAgeTop10(Rider *_rider);
-int isTop10(Rider _rider);
+double averageAgeTop10(const Rider *_rider); /* Returns average age for riders with top 10 placings */
+int isTop10(const Rider _rider); /* Checks if rider has a top10 placing */
 
 /* -------------------------------- Main -------------------------------- */
 
@@ -90,7 +92,7 @@ int main(int argc, char *argv[]) /* Help with argc and argv from https://www.tut
         /* 1 */
 
         printLine();
-
+        printItalianResultsOver30(rider);
         printLine();
 
         /* 2 */
@@ -143,7 +145,7 @@ int main(int argc, char *argv[]) /* Help with argc and argv from https://www.tut
     {
       if (userinput == 1) /* Italians over 30 */
       {
-        printf("User input: %d\n", userinput);
+        printItalianResultsOver30(rider);
         return EXIT_SUCCESS;
       }
       else if (userinput == 2) /* Danish with placings */
@@ -264,13 +266,24 @@ void printRider(Rider *_rider, int _identifier)
 
 void printLine(void)
 {
-  printf("_______________________________________________________________\n");
+  printf("_______________________________________________________________________________________________________\n");
 }
 
 /* -------------------------------- End -------------------------------- */
 /* ---------------------- Functions for assignement 1 ------------------ */
 
-
+void printItalianResultsOver30(const Rider *_rider)
+{
+  int i;
+  for(i = 0; i < AMOUNT_OF_RUNS; ++i)
+  {
+    if(strcmp(_rider[i].Country, "ITA") == 0 && _rider[i].Age > 30)
+    {
+      printf("Race: %s | Name: %s | Age: %d ", _rider[i].RaceName, _rider[i].Name, _rider[i].Age);
+      printf("| Country: %s | Placing: %s | Time: %s\n", _rider[i].Country, _rider[i].Placing, _rider[i].Time);
+    }
+  }
+}
 
 /* -------------------------------- End -------------------------------- */
 /* ---------------------- Functions for assignement 2 ------------------ */
@@ -501,7 +514,7 @@ Rider compareTime(const Rider _firstRider, const Rider _secondRider)
 /* -------------------------------- End -------------------------------- */
 /* ---------------------- Functions for assignement 5 ------------------ */
 
-double averageAgeTop10(Rider *_rider)
+double averageAgeTop10(const Rider *_rider)
 {
   int i = 0, j, sumOfAge = 0, personsCounted = 0; 
   Rider names[40];
@@ -526,7 +539,7 @@ double averageAgeTop10(Rider *_rider)
   return (double) sumOfAge/personsCounted; /* Typecasting for average age */
 }
 
-int isTop10(Rider _rider)
+int isTop10(const Rider _rider)
 {
   int result;
   if (strcmp(_rider.Placing, "OTL") == 0 || strcmp(_rider.Placing, "DNF") == 0)

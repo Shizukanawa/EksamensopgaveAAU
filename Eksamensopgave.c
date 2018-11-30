@@ -35,6 +35,7 @@ int checkProgramParameter(const char *_parameter); /* Checks the program paramet
 void printUserInteraction(void); /* Prints user interaction sequence */
 void printRider(Rider *_rider, int _identifier); /* Prints the rider into console */
 void printLine(void);
+void printEnd();
 
 Rider *danishRidersWithPlacing(const Rider *_rider); /* Function that returns a pointer to an array */
 int checkArrayForDigit(const char *_string); /* Checks an array. Returns 1 if it is just numbers and 0 if there is a letter */
@@ -90,6 +91,7 @@ int main(int argc, char *argv[]) /* Help with argc and argv from https://www.tut
         /* 3 */
 
         points = givePoints(rider);
+        qsort(points, AMOUNT_OF_RUNS, sizeof(Rider), comparePoints);
         printRider(points, 3);
         printLine();
 
@@ -107,6 +109,7 @@ int main(int argc, char *argv[]) /* Help with argc and argv from https://www.tut
         /* 5 */
         printf("Average age for riders with top 10 placing: %lf\n", averageAgeTop10(rider));
         printLine();
+        printEnd();
         return EXIT_SUCCESS;
       }
     }
@@ -120,7 +123,6 @@ int main(int argc, char *argv[]) /* Help with argc and argv from https://www.tut
   {
     printUserInteraction();
     scanf(" %d", &userinput);
-    
     if (getRiders(rider) == 0)
     {
       printf("Exiting program...\n");
@@ -142,6 +144,7 @@ int main(int argc, char *argv[]) /* Help with argc and argv from https://www.tut
       else if (userinput == 3) /* Top 10 with points */
       {
         points = givePoints(rider);
+        qsort(points, AMOUNT_OF_RUNS, sizeof(Rider), comparePoints);
         printRider(points, 3);
         return EXIT_SUCCESS;
       }
@@ -226,12 +229,7 @@ void printUserInteraction(void)
 
 void printRider(Rider *_rider, int _identifier)
 {
-  int i;
-  if (_identifier == 1)
-  {
-    /*printf("Race name: %s | Rider: %s | Age: %d | ", _rider.RaceName, _rider.Name, _rider.Age);
-    printf("Team: %s | Country: %s | Placing: %s | Time: %s\n", _rider.TeamName, _rider.Country, _rider.Placing, _rider.Time);*/
-  }
+  int i, top10 = 10;
   if (_identifier == 2)
   {
     for(i = 0; strcmp(_rider[i].Name, "") != 0; ++i) /* Runs until name is empty since Race has a lot of empty space */
@@ -239,9 +237,16 @@ void printRider(Rider *_rider, int _identifier)
   }
   if (_identifier == 3)
   {
-    for(i = 0; i < 10; ++i)
+    for(i = 0; i < top10; ++i) 
     {
-      printf("Name: %s | Points: %d\n", _rider[i].Name, _rider[i].Points);
+      if(_rider[i].Name[0] == '\0') /* Failsafe */
+      {
+        ++top10;
+      }
+      else if (strcmp(_rider[i].Name, " ") != 0 && _rider[i].Name[0] != '\0')
+      {
+        printf("Name: %s | Points: %d\n", _rider[i].Name, _rider[i].Points);
+      }
     }
   }
   if (_identifier == 4)
@@ -251,6 +256,12 @@ void printRider(Rider *_rider, int _identifier)
 void printLine(void)
 {
   printf("_______________________________________________________________________________________________________\n");
+}
+
+void printEnd(void)
+{
+  printf("Press ENTER to close...");
+  getchar();
 }
 
 /* -------------------------------- End -------------------------------- */
@@ -319,6 +330,7 @@ Rider *givePoints(const Rider *_rider)
   static Rider points[AMOUNT_OF_RUNS];
   int i, j, total[4], race; /* i = Going through all the riders and j = going through _points array */
   countRidersInRace(_rider, total);
+  memset(points, 0, sizeof(Rider));
 
   for(i = 0; i < AMOUNT_OF_RUNS; ++i) /* Go through all the riders */
   {
@@ -338,7 +350,6 @@ Rider *givePoints(const Rider *_rider)
       }
     }
   }
-  qsort(points, AMOUNT_OF_RUNS, sizeof(Rider), comparePoints);
   return points;
 }
 

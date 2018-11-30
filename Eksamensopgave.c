@@ -229,7 +229,7 @@ void printUserInteraction(void)
 
 void printRider(Rider *_rider, int _identifier)
 {
-  int i, top10 = 10;
+  int i;
   if (_identifier == 2)
   {
     for(i = 0; strcmp(_rider[i].Name, "") != 0; ++i) /* Runs until name is empty since Race has a lot of empty space */
@@ -237,16 +237,9 @@ void printRider(Rider *_rider, int _identifier)
   }
   if (_identifier == 3)
   {
-    for(i = 0; i < top10; ++i) 
+    for(i = 0; i < 10; ++i) 
     {
-      if(_rider[i].Name[0] == '\0') /* Failsafe */
-      {
-        ++top10;
-      }
-      else if (strcmp(_rider[i].Name, " ") != 0 && _rider[i].Name[0] != '\0')
-      {
-        printf("Name: %s | Points: %d\n", _rider[i].Name, _rider[i].Points);
-      }
+      printf("Name: %s | Points: %d\n", _rider[i].Name, _rider[i].Points);
     }
   }
   if (_identifier == 4)

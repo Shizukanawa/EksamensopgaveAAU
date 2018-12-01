@@ -345,7 +345,7 @@ void countRidersInRace(const Rider *_rider, int *_total)
       _total[1] += 1;
     else if ((strcmp(_rider[i].RaceName, "LaFlecheWallonne") == 0))
       _total[2] += 1;
-    else if ((strcmp(_rider[i].RaceName, "LiegeBastogneLiege") == 0)) /* If the others didn't catch then go to this */
+    else if ((strcmp(_rider[i].RaceName, "LiegeBastogneLiege") == 0)) /* No else since it would count more if there were more racers */
       _total[3] += 1;
   }
 }

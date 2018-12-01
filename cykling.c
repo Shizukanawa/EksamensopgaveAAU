@@ -409,7 +409,7 @@ void getLastName(const char *_input, int _stringLength, char *_output)
       _output[j] = _input[i]; /* Copies values over */
       ++j;
     }
-    else if (_input[i] == ' ' && isupper(_input[i+1])) /* If the last name contains a space */
+    else if (!islower(_input[i-1]) && _input[i] == ' ' && isupper(_input[i+1])) /* If the last name contains a space */
     {
       _output[j] = ' ';
       ++j;

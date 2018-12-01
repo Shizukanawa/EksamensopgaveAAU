@@ -311,8 +311,6 @@ Rider *givePoints(const Rider *_rider)
   static Rider points[AMOUNT_OF_RUNS];
   int i, j, total[4], race; /* i = Going through all the riders and j = going through _points array */
   countRidersInRace(_rider, total);
-  memset(points, 0, sizeof(Rider));
-
   for(i = 0; i < AMOUNT_OF_RUNS; ++i) /* Go through all the riders */
   {
     race = findRace(_rider[i]);
@@ -321,7 +319,7 @@ Rider *givePoints(const Rider *_rider)
       if (points[j].Name[0] == '\0') /* If points[j] is null, then add a new entry. Skip if it isn't */
       {
         strcpy(points[j].Name, _rider[i].Name); /* Copies the name to the new struct array */
-        points[j].Points += calculatePoints(_rider[i].Placing, total[race]);
+        points[j].Points = calculatePoints(_rider[i].Placing, total[race]);
         break;
       }
       else if (strcmp(points[j].Name, _rider[i].Name) == 0) /* Checks if name is there. If not then loop, if there is then add  */
@@ -347,7 +345,7 @@ void countRidersInRace(const Rider *_rider, int *_total)
       _total[1] += 1;
     else if ((strcmp(_rider[i].RaceName, "LaFlecheWallonne") == 0))
       _total[2] += 1;
-    else /* If the others didn't catch then go to this */
+    else if ((strcmp(_rider[i].RaceName, "LiegeBastogneLiege") == 0)) /* If the others didn't catch then go to this */
       _total[3] += 1;
   }
 }

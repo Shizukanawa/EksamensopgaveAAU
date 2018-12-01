@@ -28,14 +28,13 @@ typedef struct Rider
   int Seconds;
 } Rider;
 
-void printItalianResultsOver30(const Rider *_rider);
-
 int getRiders(Rider *_rider); /* Puts the riders in the struct array. Returns 1 if the file is there and 0 if the file isn't there or null */
 int checkProgramParameter(const char *_parameter); /* Checks the program parameters if it is --print */
 void printUserInteraction(void); /* Prints user interaction sequence */
 void printRider(Rider *_rider, int _identifier); /* Prints the rider into console */
 void printLine(void);
-void printEnd();
+
+void printItalianResultsOver30(const Rider *_rider);
 
 Rider *danishRidersWithPlacing(const Rider *_rider); /* Function that returns a pointer to an array */
 int checkArrayForDigit(const char *_string); /* Checks an array. Returns 1 if it is just numbers and 0 if there is a letter */
@@ -47,8 +46,8 @@ int findRace(const Rider _rider); /* Finds a specific race */
 int comparePoints(const void *_first, const void *_second); /* Sorting function for qsort */
 void getLastName(const char *_input, int _stringLength, char *_output); /* Function that gets the last name via output array */
 
-void getBestPerforming(const Rider *_rider, int *_outTime, char *_outName); /* Finds the best performing that has a time in both Paris and Amstel */
-Rider compareTime(Rider _firstRider, Rider _secondRider); /* Comparing function to find the lowest time */
+void getBestPerforming(const Rider *_rider, Rider *_outRider); /* Finds the best performing that has a time in both Paris and Amstel */
+int compareTime(const Rider _firstRider, const Rider _secondRider); /* Comparing function to find the lowest time */
 
 double averageAgeTop10(const Rider *_rider); /* Returns average age for riders with top 10 placings */
 int isTop10(const Rider _rider); /* Checks if rider has a top10 placing */
@@ -57,13 +56,10 @@ int isTop10(const Rider _rider); /* Checks if rider has a top10 placing */
 
 int main(int argc, char *argv[]) /* Help with argc and argv from https://www.tutorialspoint.com/cprogramming/c_command_line_arguments.htm */
 {
-  int userinput, bestTime[3];
-  char bestRiderName[MAX_LENGTH_NAMES];
-
+  int userinput;
   Rider rider[AMOUNT_OF_RUNS];
   Rider *races, *points;
-
-  Rider bestRider[1];
+  Rider bestRiders[2];
 
   if (argv[1] != NULL) /* If the user has putten in a single argument */
   {
@@ -97,19 +93,14 @@ int main(int argc, char *argv[]) /* Help with argc and argv from https://www.tut
 
         /* 4 */
 
-        getBestPerforming(rider, bestTime, bestRiderName);
-        strcpy(bestRider[0].Name, bestRiderName);
-        bestRider[0].Hours = bestTime[Hours];
-        bestRider[0].Minutes = bestTime[Minutes];
-        bestRider[0].Seconds = bestTime[Seconds];
-
-        printRider(bestRider, 4);
+        getBestPerforming(rider, bestRiders);
+        printRider(bestRiders, 4);
         printLine();
 
         /* 5 */
+        
         printf("| Average age for riders with top 10 placing: %lf |\n", averageAgeTop10(rider));
         printLine();
-        printEnd();
         return EXIT_SUCCESS;
       }
     }
@@ -150,13 +141,8 @@ int main(int argc, char *argv[]) /* Help with argc and argv from https://www.tut
       }
       else if (userinput == 4) /* Best rider in Parix and Amstel */
       {
-        getBestPerforming(rider, bestTime, bestRiderName);
-        strcpy(bestRider[0].Name, bestRiderName);
-        bestRider[0].Hours = bestTime[Hours];
-        bestRider[0].Minutes = bestTime[Minutes];
-        bestRider[0].Seconds = bestTime[Seconds];
-
-        printRider(bestRider, 4);
+        getBestPerforming(rider, bestRiders);
+        printRider(bestRiders, 4);
         return EXIT_SUCCESS;
       }
       else if (userinput == 5) /* Average age between top 10 finishes */
@@ -250,18 +236,15 @@ void printRider(Rider *_rider, int _identifier)
     }
   }
   if (_identifier == 4)
-    printf("| Best rider: %-20s | Hours: %d | Minutes: %d | Seconds: %d |\n", _rider->Name, _rider->Hours, _rider->Minutes, _rider->Seconds);
+  {
+    for(i = 0; i < 2; ++i)
+      printf("| Best rider: %-20s | Hours: %d | Minutes: %d | Seconds: %d |\n", _rider[i].Name, _rider[i].Hours, _rider[i].Minutes, _rider[i].Seconds);
+  }
 }
 
 void printLine(void)
 {
   printf("_______________________________________________________________________________________________________\n");
-}
-
-void printEnd(void)
-{
-  printf("Press ENTER to close...");
-  getchar();
 }
 
 /* -------------------------------- End -------------------------------- */
@@ -441,10 +424,10 @@ void getLastName(const char *_input, int _stringLength, char *_output)
 /* -------------------------------- End -------------------------------- */
 /* ---------------------- Functions for assignment 4 ------------------- */
 
-void getBestPerforming(const Rider *_rider, int *_outTime, char *_outName)
+void getBestPerforming(const Rider *_rider, Rider *_outRider)
 {
   Rider parisRiders[AMOUNT_OF_RUNS];
-  Rider bestRider;
+  Rider bestRider[2];
   int i, j = 0, total[4], timeHours, timeMinutes, timeSeconds;
   /* i = start of paris and j = the start of array parisRiders */
   int k, l; /* k = start of amstel and l = end of amstel */
@@ -479,35 +462,38 @@ void getBestPerforming(const Rider *_rider, int *_outTime, char *_outName)
       }
     }
   }
-  bestRider = parisRiders[0]; /* Just takes the 1st parisrider and puts it in bestrider */
+  bestRider[0] = parisRiders[0]; /* Just takes the 1st parisrider and puts it in bestrider */
+
   for(i = 1; parisRiders[i].Name[0] != '\0'; ++i) /* Compares each in parisriders with the best rider. */
   {
-    bestRider = compareTime(bestRider, parisRiders[i]); /* compareTime returns a rider and puts it in the bestRider */
+    if(compareTime(bestRider[0], parisRiders[i]) == 0) /* if parisriders have more time than bestrider */
+      bestRider[0] = bestRider[0];
+    else if(compareTime(bestRider[0], parisRiders[i]) == 1) /* Vice versa */
+      bestRider[0] = parisRiders[i];
+    else if(compareTime(bestRider[0], parisRiders[i]) == 2) /* If they are the same */
+      bestRider[1] = parisRiders[i];
   }
-  /* There's actually 2 best riders */
 
-  strcpy(_outName, bestRider.Name); /* Gives values to output parameters */
-  _outTime[Hours] = bestRider.Hours;
-  _outTime[Minutes] = bestRider.Minutes;
-  _outTime[Seconds] = bestRider.Seconds;
+  for(i = 0; i < 2; ++i)
+    _outRider[i] = bestRider[i]; /* Copies values over */
 }
 
-Rider compareTime(const Rider _firstRider, const Rider _secondRider)
+int compareTime(const Rider _firstRider, const Rider _secondRider)
 {
   if(_firstRider.Hours < _secondRider.Hours)
-    return _firstRider;
+    return 0;
   else if(_firstRider.Hours > _secondRider.Hours)
-    return _secondRider;
+    return 1;
   else if(_firstRider.Minutes < _secondRider.Minutes)
-    return _firstRider;
+    return 0;
   else if(_firstRider.Minutes > _secondRider.Minutes)
-    return _secondRider;
+    return 1;
   else if(_firstRider.Seconds < _secondRider.Seconds)
-    return _firstRider;
+    return 0;
   else if(_firstRider.Seconds > _secondRider.Seconds)
-    return _secondRider;
+    return 1;
   else
-    return _firstRider;
+    return 2;
 }
 
 /* -------------------------------- End -------------------------------- */
@@ -535,7 +521,7 @@ double averageAgeTop10(const Rider *_rider)
       }
     }
   }
-  return (double) sumOfAge/personsCounted; /* Typecasting for average age */
+  return (double) sumOfAge / personsCounted; /* Typecasting for average age */
 }
 
 int isTop10(const Rider _rider)

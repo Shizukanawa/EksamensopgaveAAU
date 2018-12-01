@@ -57,8 +57,7 @@ int isTop10(const Rider _rider); /* Checks if rider has a top10 placing */
 int main(int argc, char *argv[]) /* Help with argc and argv from https://www.tutorialspoint.com/cprogramming/c_command_line_arguments.htm */
 {
   int userinput;
-  Rider rider[AMOUNT_OF_RUNS];
-  Rider *races, *points;
+  Rider rider[AMOUNT_OF_RUNS], *races, *points;
   Rider bestRiders[2];
 
   if (argv[1] != NULL) /* If the user has putten in a single argument */
@@ -87,7 +86,6 @@ int main(int argc, char *argv[]) /* Help with argc and argv from https://www.tut
         /* 3 */
 
         points = givePoints(rider);
-        qsort(points, AMOUNT_OF_RUNS, sizeof(Rider), comparePoints);
         printRider(points, 3);
         printLine();
 
@@ -135,7 +133,6 @@ int main(int argc, char *argv[]) /* Help with argc and argv from https://www.tut
       else if (userinput == 3) /* Top 10 with points */
       {
         points = givePoints(rider);
-        qsort(points, AMOUNT_OF_RUNS, sizeof(Rider), comparePoints);
         printRider(points, 3);
         return EXIT_SUCCESS;
       }
@@ -258,7 +255,7 @@ void printItalianResultsOver30(const Rider *_rider)
     if(strcmp(_rider[i].Country, "ITA") == 0 && _rider[i].Age > 30)
     {
       printf("| Race: %-20s | Name: %-20s | Age: %-1d ", _rider[i].RaceName, _rider[i].Name, _rider[i].Age);
-      printf("| Team: %-1s | Country: %-1s | Placing: %-3s | Time: %-10s |\n", _rider[i].TeamName, _rider[i].Country, _rider[i].Placing, _rider[i].Time);
+      printf("| Team: %-1s | Country: %-1s | Placing: %-3s | Time: %-8s |\n", _rider[i].TeamName, _rider[i].Country, _rider[i].Placing, _rider[i].Time);
     }
   }
 }
@@ -334,6 +331,7 @@ Rider *givePoints(const Rider *_rider)
       }
     }
   }
+  qsort(points, AMOUNT_OF_RUNS, sizeof(Rider), comparePoints);
   return points;
 }
 
